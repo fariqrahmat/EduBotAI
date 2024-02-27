@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with EduBot AI by Imagine AI</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+  <script src="./js/basic.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    /* Base styles */
+    html, body {
+      height: auto;
+      padding : 0;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    /* Navbar styles */
+    .navbar-custom {
+      background-color: #0E132B;
+    }
+    .navbar-custom .navbar-brand img {
+      height: 40px;
+      width: auto;
+      margin-right: -300px;
+    }
+    .navbar-custom .navbar-text {
+      color: white;
+      font-weight: bold;
+      font-size: large;
+    }
+
+    /* Positioning styles */
+    .navbar-toggle-container {
+      display: flex;
+      align-items: center;
+    }
+    .navbar-toggle-container .navbar-toggler {
+      order: -1; /* Push toggler to the left */
+      margin-right: 10px; /* Add some space between toggler and logo */
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      height: 100%;
+      width: 250px;
+      overflow-y: hidden;
+      background-color: #0E132B;
+      padding: 20px;
+      transition: left 0.3s ease-in-out;
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-opened {
+    margin-left: 250px; /* Adjust the margin to match the width of your sidebar */
+    transition: margin-left 0.3s ease-in-out; /* Add transition effect for smooth animation */
+    }
+
+    body.sidebar-opened {
+    margin-left: 250px; /* Adjust the margin to match the width of your sidebar */
+    }
+
+    .oblong-button {
+        border-radius: 20px; /* Adjust the border-radius to change the shape */
+    }
+
+    .circle-button { 
+      border-radius: 50%; 
+      width: 36px; 
+      height: 38px;
+    }
+
+    .fixed-text-box {
+      position: absolute;
+      top: calc(100% + 440px); /* Adjust as needed */
+      left: 52%;
+      transform: translateX(-50%);
+      background-color: transparent; /* Background color */
+      padding: 60px;
+      min-width: 600px; /* Set width as needed */
+      border-radius: 5px;
+    }
+
+    @media (min-width: 992px) {
+        .sidebar.show ~ .col-md-8.offset-md-2 {
+            margin-left: 250px; /* Adjust based on the width of the sidebar */
+        }
+    }
+
+    @media (max-width: 991px) {
+        .sidebar.show ~ .col-md-8.offset-md-2 {
+            margin-left: 0;
+        }
+    }
+
+    .custom-content {
+      border: 1px solid #848eff;
+      border-radius: 100px;
+      padding: 5px;
+      width: fill;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 360px; /* Adjust the height as needed */
+      background-color: white;
+      text-align: center;
+    }
+
+    .chat-container {
+      overflow-y: auto;
+      height: calc(100vh - 420px); /* Adjust the height based on the video and form container heights */
+    }
+
+    .history-item {
+      margin-bottom: 10px;
+    }
+
+    .form-container {
+      background-color: white;
+      text-align: center;
+    }
+
+    .sidebar:hover {
+        overflow-y: scroll; /* Show scrollbar on hover */
+    }
+
+    /* Style scrollbar */
+    .sidebar::-webkit-scrollbar {
+        width: 10px; /* Width of the scrollbar */
+    }
+
+    /* Track */
+    .sidebar::-webkit-scrollbar-track {
+        background: transparent; /* Color of the track */
+    }
+
+    /* Handle */
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #888; /* Color of the scrollbar handle */
+    }
+
+    /* Handle on hover */
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color of the scrollbar handle on hover */
+    }
+
+    /* Footer styles */
+    .footer {
+      background-color: #0E132B;
+      color: white;
+      padding: 5px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div hidden id="configuration">
+    <h1>Customized Speech Service</h1>
+    <p>Welcome to the customized speech service with Azure Cognitive Services, ICE Server, and personalized avatar.</p>
+    <div class="card mt-5">
+      <div class="card-header">
+        <h5>Azure Speech Resources</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+            Region:
+            <select id="region" class="form-control">
+            <option value="">--Select a region--</option>
+            <option value="eastasia">East Asia</option>
+            <option value="southeastasia">Southeast Asia</option>
+            <option value="centralus">Central US</option>
+            <option value="eastus">East US</option>
+            <option value="eastus2">East US 2</option>
+            <option value="northcentralus">North Central US</option>
+            <option value="southcentralus">South Central US</option>
+            <option value="westcentralus">West Central US</option>
+            <option value="westus">West US</option>
+            <option selected value="westus2">West US 2</option>
+            <option value="japaneast">Japan East</option>
+            <option value="japanwest">Japan West</option>
+            <option value="koreacentral">Korea Central</option>
+            <option value="koreasouth">Korea South</option>
+            <option value="australiaeast">Australia East</option>
+            <option value="australiasoutheast">Australia Southeast</option>
+            <option value="southindia">South India</option>
+            <option value="centralindia">Central India</option>
+            <option value="westindia">West India</option>
+            <option value="canadacentral">Canada Central</option>
+            <option value="canadaeast">Canada East</option>
+            <option value="uksouth">UK South</option>
+            <option value="ukwest">UK West</option>
+            <option value="westeurope">West Europe</option>
+            </select>
+        </li>
+        <li class="list-group-item">
+          Subscription Key:
+          <input type="password" id="subscriptionKey" class="form-control">
+        </li>
+      </ul>
+    </div>
+    <div class="card mt-5">
+      <div class="card-header">
+        <h5>ICE Server</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          URL:
+          <input type="text" id="iceServerUrl" class="form-control">
+        </li>
+        <li class="list-group-item">
+          Username:
+          <input type="text" id="iceServerUsername" class="form-control">
+        </li>
+        <li class="list-group-item">
+          Credential:
+          <input type="password" id="iceServerCredential" class="form-control">
+        </li>
+      </ul>
+    </div>
+    <div class="card mt-5">
+      <div class="card-header">
+        <h5>TTS Configuration</h5>
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">
+          TTS Voice:
+          <input type="text" id="ttsVoice" value="en-US-JennyMultilingualV2Neural" class="form-control">
+        </li>
+        <li class="list-group-item">
+          Custom Voice Deploy ID (Endpoint ID):
+          <input type="text" id="customVoiceEndpointId" class="form-control">
+        </li>
+      </ul>
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+          <h5>Avatar Configuration</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            Avatar Character:
+            <select id="talkingAvatarCharacter" class="form-control">
+              <option value="">--Select a character--</option>
+              <option selected value="lisa">Lisa</option>
+              <option value="lizzo">Lizzo</option>
+            </select>
+          </li>
+          <li class="list-group-item">
+            Avatar Style:
+            <select id="talkingAvatarStyle" class="form-control">
+              <option value="">--Select style--</option>
+              <option selected value="casual-sitting">Casual Sitting</option>
+              <option value="graceful-sitting">Graceful Standing</option>
+            </select>
+          </li>
+          <li class="list-group-item">
+            Background Color:
+            <select id="backgroundColor" class="form-control">
+              <option value="">--Select Background-</option>
+              <option selected value="#FFFFFFFF">Light</option>
+              <option value="#000000">Dark</option>
+            </select>
+          </li>
+          <li class="list-group-item">
+            Custom Avatar:
+            <div class="form-check">
+              <input type="checkbox" id="customizedAvatar" class="form-check-input">
+              <label for="customizedAvatar" class="form-check-label">Enable custom avatar</label>
+            </div>
+          </li>
+          <li class="list-group-item">
+            Transparent Background:
+            <div class="form-check">
+              <input type="checkbox" id="transparentBackground" class="form-check-input" onchange="window.updataTransparentBackground()">
+              <label for="transparentBackground" class="form-check-label">Enable transparent background</label>
+            </div>
+          </li>
+          <li class="list-group-item">
+            Video Crop:
+            <div class="form-check">
+              <input type="checkbox" id="videoCrop" class="form-check-input" >
+              <label for="videoCrop" class="form-check-label">Enable video crop</label>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="d-flex justify-content-end" style="width: 100%; margin-top: 20px;">
+        <button id="cancelBtn" onclick="window.cancelBtn()" style="min-width: 100px; height: 35px; padding: 0 10px; background-color: #0E132B; color: white; border-radius: 8px;"><strong>Cancel</strong></button>
+        <button id="saveBtn" onclick="window.saveBtn()" style="min-width: 100px; height: 35px; margin-left: 15px; padding: 0 10px; background-color: #0E132B; color: white; border-radius: 8px;"><strong>Save</strong></button>
+      </div>
+  </div>
+<!-- header-->
+<nav class="navbar navbar-expand-sm navbar-dark fixed-top navbar-custom">
+  <div class="container-fluid">
+    <!-- Toggle container for sidebar -->
+    <div class="navbar-toggle-container">
+      <!-- Toggler button for sidebar -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidebarCollapse" aria-controls="sidebarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="display: inline-block;">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+    <!-- Logo image -->
+    <a class="navbar-brand" href="mainpage.html">
+      <img src="image\logoimagineai.png" alt="Logo" style="max-height: 40px;"> <!-- Adjust the max-height as needed -->
+    </a>
+    <!-- Title -->
+    <span class="navbar-text mx-auto d-none d-sm-block">Chat with EduBot AI by Imagine AI</span> <!-- Display on small screens and above -->
+    <span class="navbar-text mx-auto d-block d-sm-none text-center">Chat with EduBot AI</span> <!-- Display on extra small screens only -->
+  </div>
+</nav>
+
+<div class="container-fluid mt-5">
+  <div class="row">
+    <div class="col-md-10 offset-md-1">
+      <!-- Sidebar -->
+      <div class="sidebar d-flex flex-column justify-content-between" id="sidebar">
+        <!-- First Row -->
+        <div>
+          <form>
+            <!--Subject-->
+            <div class="form-group mt-3 text-white">
+              <label style="margin-top: 40px;"><strong>Subject</strong></label>
+              <h5><small>Please choose the subject :</small></h5>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" checked name="subject" id="Physic" value="Physic">
+                <label class="form-check-label text-white" for="Physic">Physic</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="subject" id="MachineLearning" value="Machine Learning">
+                <label class="form-check-label text-white" for="MachineLearning">Machine Learning</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="subject" id="Biology" value="Biology">
+                <label class="form-check-label text-white" for="Biology">Biology</label>
+              </div>
+              <label style= "margin-top: 10px;"></style><strong>Generator Framework:</strong></label>
+              <h5><small>Please choose the Engine:</small></h5>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" checked name="Engine" id="FT" value="FT">
+                <label class="form-check-label text-white" for="FT">Fine-Tuned</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="Engine" value="RAG" id="RAG">
+                <label class="form-check-label text-white" for="RAG">Retrieval Augmented Generation (RAG)</label>
+              </div>
+            </div>
+            <!--Upload file-->
+            <div class="form-group mt-3 text-white">
+              <h5><small>Upload PDF file:</small></h5> 
+              <input type="file" class="form-control-file" id="fileInput">
+              <button id="submit1" onclick="document.submit1()">Send</button>
+            </div>
+            <!--Control Panel-->
+            <div class="form-group mt-3 text-white">
+              <label style="margin-top: 15px;"><strong>Control Panel</strong></label>
+              <button type="button" class="btn btn-warning btn-block oblong-button" id="startSession" onclick="window.startSession()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Start Session</strong></button>
+              <button type="button" class="btn btn-warning btn-block oblong-button" id="stopSession" onclick="window.stopSession()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Stop Session</strong></button>
+              <button type="button" class="btn btn-warning btn-block oblong-button" id="speak" onclick="window.speak()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Start Speaking</strong></button>
+              <button type="button" class="btn btn-warning btn-block oblong-button" id="stopSpeaking" onclick="window.stopSpeaking()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Stop Speaking</strong></button>
+            </div>
+          </form>
+        </div>
+        <!-- Second Row -->
+        <div style="margin-bottom: 40px;">
+          <div class="d-flex flex-column" style="margin-top: 50px;">
+            <a href="user.html" class="btn btn-primary mr-2" id="user" style="width: 100%; background-color: #0E132B; color: white; border: none; margin-bottom: 5px;">
+              <i class="fas fa-user"></i> User
+            </a>
+            <a href="setting.html" class="btn btn-primary mr-2" style="width: 100%; background-color: #0E132B; color: white; border: none; margin-bottom: 5px;">
+              <i class="fas fa-cog"></i> Settings
+            </a>
+            <button type="button" class="btn btn-primary" id="logout" style="width: 100%; background-color: #0E132B; color: white; border: none;">
+              <i class="fas fa-sign-out-alt"></i> Log Out
+            </button>
+          </div>
+        </div>
+      </div>
+      <!--Content-->
+      <div class="container align-items center">
+        <div class="row">
+          <div class="col">
+            <header style="text-align: center;">Hello, welcome to our class. Ask me Anything!</header>
+            <h5 id="videoLabel" style="text-align: center;"><small><strong>Avatar Video</strong></small></h5>
+            <div id="videoContainer" class="video-container" style="position: relative; width: 960px;">
+              <div id="overlayArea" style="position: absolute;" hidden="hidden">
+                <!-- Add your text or image controls here -->
+                <p id="overlayText" style="font-size: large;">Live Video</p>
+                <!-- <img id="overlayImage" src="your-image-source.png" alt="Overlay Image"> -->
+              </div>
+              <div id="remoteVideo"></div>
+              <canvas id="canvas" width="1920" height="1080" style="background-color: transparent;" hidden="hidden"></canvas>
+              <canvas id="tmpCanvas" width="1920" height="1080" hidden="hidden"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="container chat-container">
+              <div id="chat-history"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="form-container">
+              <form id="form" class="row align-items-center justify-content-center" style="display: flex;">
+                <textarea hidden id="spokenText" style="height:40px">Hello world!</textarea><br/>
+                <div class="col-8"> <!-- Adjust the width as needed -->
+                  <input id="prompt" class="form-control custom-content" style="border-color: rgb(89, 89, 255); border-radius: 100px;" placeholder="Type your message here..."/>
+                </div>
+                <div hidden id="chatpdf" style="background-color: white;"></div>
+                <div hidden id="chatpdfanswer" style="background-color: white;"></div>
+                <div class="col-1"> <!-- Adjust the width as needed -->
+                  <button type="submit" class="btn btn-success rounded-circle">
+                    <i class="fas fa-arrow-circle-up" style="font-size: 20px;"></i>
+                  </button>
+                </div>
+              </form>
+              <template id="thumb-template">
+                <img class="thumb" />
+              </template>
+            </div>
+          </div>
+        </div>
+        <div hidden id="logging" style="background-color: white;">Logs</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<h2 hidden style="background-color: white; width: 300px;">Logs</h2>
+<div hidden id="logging" style="background-color: white;"></div>
+<br/>
+<br/>
+
+<!--footer-->
+<footer class="footer fixed-bottom"> <!-- Add fixed-bottom class to make the footer fixed at the bottom -->
+  <div class="container">
+    <div class="row">
+      <div class="col text-center">
+        <span class="navbar-text text-white" style="font-size: 80%">© 2024 Imagine AI Sdn. Bhd. All rights reserved.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- FontAwesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<!-- Custom Script -->
+<script>
+  $(document).ready(function () {
+      $(".navbar-toggler").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("body").toggleClass("sidebar-opened"); // Toggle class on body content
+      });
+  });
+
+  const storedSettings = localStorage.getItem('settings');
+
+  // Check if there are stored settings
+  if (storedSettings) {
+      // Parse the stored settings into an object
+      const settings = JSON.parse(storedSettings);
+      
+      // Assign settings to respective HTML elements
+      document.getElementById("region").value = settings.region;
+      document.getElementById("subscriptionKey").value = settings.subscriptionKey;
+      document.getElementById("iceServerUrl").value = settings.iceServerUrl;
+      document.getElementById("iceServerUsername").value = settings.iceServerUsername;
+      document.getElementById("iceServerCredential").value = settings.iceServerCredential;
+      document.getElementById("ttsVoice").value = settings.ttsVoice;
+      document.getElementById("customVoiceEndpointId").value = settings.customVoiceEndpointId;
+      document.getElementById("talkingAvatarCharacter").value = settings.talkingAvatarCharacter;
+      document.getElementById("talkingAvatarStyle").value = settings.talkingAvatarStyle;
+      document.getElementById("backgroundColor").value = settings.backgroundColor;
+      document.getElementById("customizedAvatar").checked = settings.customizedAvatar;
+      document.getElementById("transparentBackground").checked = settings.transparentBackground;
+      document.getElementById("videoCrop").checked = settings.videoCrop;
+  } else {
+      // If no settings are found, show a message to the user or handle it accordingly
+      alert('No settings found. Please configure your settings first.');
+  }
+
+  //delete local storage if the page got refresh or closed
+  function clearSettings() {
+    localStorage.removeItem('settings');
+  }
+
+  // Attach an event listener to the window beforeunload event
+  window.addEventListener('beforeunload', clearSettings);
+</script>
+<script type="module">
+  import {
+    getGenerativeModel,
+    scrollToDocumentBottom,
+    updateUI,
+  } from "./utils/shared.js";
+
+  var sourceID = "";
+  const formData = new FormData();
+  document.submit1 = () => {
+    event.preventDefault();
+          formData.append("file", document.getElementById('fileInput').files[0]);
+
+            const options = {
+                headers: {
+                "x-api-key": "sec_Z6m4C2AtdIdEbwO97qlgeVRM0yYyBvxX",
+                },
+            };
+
+            axios.post("https://api.chatpdf.com/v1/sources/add-file", formData, options)
+                .then((response) => {
+                console.log("Source ID:", response.data.sourceId);
+                document.getElementById('logging').innerHTML += "Your uploaded document ID: " + response.data.sourceId + '<br>';
+                document.getElementById('chatpdf').innerHTML = response.data.sourceId;
+                })
+                .catch((error) => {
+                console.log("Error:", error.message);
+                console.log("Response:", error.response.data);
+                });
+
+  }
+
+  const promptInput = document.querySelector("#prompt");
+  const historyElement = document.querySelector("#chat-history");
+  let chat;
+
+  document
+    .querySelector("#form")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+      var selectedEngine = document.querySelector('input[name="Engine"]:checked');
+      if (selectedEngine.value == "FT"){
+        if (!chat) {
+          console.log("Do this")
+          const model = await getGenerativeModel({ model: "gemini-pro" });
+          chat = model.startChat({
+            generationConfig: {
+              maxOutputTokens: 400,
+            },
+          });
+        }
+
+        const userMessage = promptInput.value;
+        const parsequest = "You are "+ document.querySelector('input[name="subject"]:checked').value + " teacher called EduBotAI developed by Imagine AI research team. Please answer only question that related to :"+ document.querySelector('input[name="subject"]:checked').value + " and greeting from user. If out of topic, please response to the question: `My understanding is limited to "+ document.querySelector('input[name="subject"]:checked').value + "`." + promptInput.value;
+        //const parsequest = "Assume you are EduBotAI developed by Imagine AI research team. " + promptInput.value;
+        promptInput.value = "";
+
+        // Create UI for the new user / assistant messages pair
+        historyElement.innerHTML += `<div class="history-item user-role" style="background-color: #cbd4cd;">
+          <div class="name" style="width: 100px; font-weight: bold;">User</div>
+          <blockquote>${userMessage}</blockquote>
+        </div>
+        <div class="history-item model-role" style="background-color: #a6ada8;">
+          <div class="name" style="width: 100px; font-weight: bold;">EduBotAI</div>
+          <blockquote></blockquote>
+        </div>`;
+
+        scrollToDocumentBottom();
+        const resultEls = document.querySelectorAll(
+          ".model-role > blockquote",
+        );
+        await updateUI(
+          resultEls[resultEls.length - 1],
+          () => chat.sendMessageStream(parsequest),
+          true,
+        );
+
+      }
+      else {
+        //document.getElementById('logging').innerHTML += document.getElementById('chatpdf').innerHTML + '<br>';
+        const userMessage = promptInput.value;
+        const parsequest = "Assume you are EduBotAI developed by Imagine AI research team. " + promptInput.value;
+        promptInput.value = "";
+        historyElement.innerHTML += `<div class="history-item user-role">
+              <div class="name" style="width: 100px;">User</div>
+              <blockquote>${userMessage}</blockquote>
+            </div>`;
+
+        const config = {
+          headers: {
+            "x-api-key": "sec_Z6m4C2AtdIdEbwO97qlgeVRM0yYyBvxX",
+            "Content-Type": "application/json",
+          },
+        };
+
+        const data = {
+          sourceId: document.getElementById('chatpdf').innerHTML,
+          messages: [
+            {
+              role: "user",
+              content: parsequest,
+            },
+          ],
+        };
+
+        axios
+          .post("https://api.chatpdf.com/v1/chats/message", data, config)
+          .then((response) => {
+            console.log("Result:", response.data.content);
+            document.getElementById('spokenText').value = response.data.content;
+            // Create UI for the new user / assistant messages pair
+            historyElement.innerHTML += `
+            <div class="history-item model-role">
+              <div class="name" style="width: 100px;">EduBotAI</div>
+              <blockquote>${response.data.content}</blockquote>
+            </div>`;
+            scrollToDocumentBottom();
+            document.getElementById("speak").click();
+          })
+          .catch((error) => {
+            console.error("Error:", error.message);
+            console.log("Response:", error.response.data);
+          });
+          //resultEls.innerHTML = document.getElementById('chatpdfanswer').innerHTML;
+      }
+
+
+    });
+</script>
+</body>
+</html>

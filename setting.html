@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with EduBot AI by Imagine AI</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+  <script src="./js/basic.js"></script>
+  <style>
+    /* Base styles */
+    html, body {
+      height: auto;
+      padding : 0;
+      margin-top: 50px;
+      margin-bottom: 50px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    /* Navbar styles */
+    .navbar-custom {
+      background-color: #0E132B;
+    }
+    .navbar-custom .navbar-brand img {
+      height: 40px;
+      width: auto;
+      margin-right: -300px;
+    }
+    .navbar-custom .navbar-text {
+      color: white;
+      font-weight: bold;
+      font-size: large;
+    }
+
+    /* Positioning styles */
+    .navbar-toggle-container {
+      display: flex;
+      align-items: center;
+    }
+    .navbar-toggle-container .navbar-toggler {
+      order: -1; /* Push toggler to the left */
+      margin-right: 10px; /* Add some space between toggler and logo */
+    }
+
+    /* Sidebar styles */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      height: 100%;
+      width: 250px;
+      overflow-y: hidden;
+      background-color: #0E132B;
+      padding: 20px;
+      transition: left 0.3s ease-in-out;
+    }
+
+    .sidebar.show {
+      left: 0;
+    }
+
+    .sidebar-opened {
+    margin-left: 250px; /* Adjust the margin to match the width of your sidebar */
+    transition: margin-left 0.3s ease-in-out; /* Add transition effect for smooth animation */
+    }
+
+    body.sidebar-opened {
+    margin-left: 250px; /* Adjust the margin to match the width of your sidebar */
+    }
+
+    .oblong-button {
+        border-radius: 20px; /* Adjust the border-radius to change the shape */
+    } 
+
+    .sidebar:hover {
+        overflow-y: scroll; /* Show scrollbar on hover */
+    }
+
+    /* Style scrollbar */
+    .sidebar::-webkit-scrollbar {
+        width: 10px; /* Width of the scrollbar */
+    }
+
+    /* Track */
+    .sidebar::-webkit-scrollbar-track {
+        background: transparent; /* Color of the track */
+    }
+
+    /* Handle */
+    .sidebar::-webkit-scrollbar-thumb {
+        background: #888; /* Color of the scrollbar handle */
+    }
+
+    /* Handle on hover */
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color of the scrollbar handle on hover */
+    }
+
+    /* Footer styles */
+    .footer {
+      background-color: #0E132B;
+      color: white;
+      padding: 5px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+<!-- header-->
+<nav class="navbar navbar-expand-sm navbar-dark fixed-top navbar-custom">
+  <div class="container-fluid">
+    <!-- Toggle container for sidebar -->
+    <div class="navbar-toggle-container">
+      <!-- Toggler button for sidebar -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidebarCollapse" aria-controls="sidebarCollapse" aria-expanded="false" aria-label="Toggle navigation" style="display: inline-block;">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+    <!-- Logo image -->
+    <a class="navbar-brand" href="mainpage.html">
+      <img src="image\logoimagineai.png" alt="Logo" style="max-height: 40px;"> <!-- Adjust the max-height as needed -->
+    </a>
+    <!-- Title -->
+    <span class="navbar-text mx-auto d-none d-sm-block">Chat with EduBot AI by Imagine AI</span> <!-- Display on small screens and above -->
+    <span class="navbar-text mx-auto d-block d-sm-none text-center">Chat with EduBot AI</span> <!-- Display on extra small screens only -->
+  </div>
+</nav>
+
+<div class="container-fluid mt-5">
+    <div class="row">
+      <div class="col-md-10 offset-md-1">
+        <!-- Sidebar -->
+        <div class="sidebar d-flex flex-column justify-content-between" id="sidebar">
+          <!-- First Row -->
+          <div>
+            <form>
+              <!--Subject-->
+              <div class="form-group mt-3 text-white">
+                <label style="margin-top: 40px;"><strong>Subject</strong></label>
+                <h5><small>Please choose the subject :</small></h5>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" checked name="subject" id="Physic" value="Physic">
+                  <label class="form-check-label text-white" for="Physic">Physic</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="subject" id="MachineLearning" value="Machine Learning">
+                  <label class="form-check-label text-white" for="MachineLearning">Machine Learning</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="subject" id="Biology" value="Biology">
+                  <label class="form-check-label text-white" for="Biology">Biology</label>
+                </div>
+                <label style= "margin-top: 10px;"></style><strong>Generator Framework:</strong></label>
+                <h5><small>Please choose the Engine:</small></h5>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" checked name="Engine" id="FT" value="FT">
+                  <label class="form-check-label text-white" for="FT">Fine-Tuned</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="Engine" value="RAG" id="RAG">
+                  <label class="form-check-label text-white" for="RAG">Retrieval Augmented Generation (RAG)</label>
+                </div>
+              </div>
+              <!--Upload file-->
+              <div class="form-group mt-3 text-white">
+                <h5><small>Upload PDF file:</small></h5> 
+                <input type="file" class="form-control-file" id="fileInput">
+                <button id="submit1" onclick="document.submit1()">Send</button>
+              </div>
+              <!--Control Panel-->
+              <div class="form-group mt-3 text-white">
+                <label style="margin-top: 15px;"><strong>Control Panel</strong></label>
+                <button type="button" class="btn btn-warning btn-block oblong-button" id="startSession" onclick="window.startSession()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Start Session</strong></button>
+                <button type="button" class="btn btn-warning btn-block oblong-button" id="stopSession" onclick="window.stopSession()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Stop Session</strong></button>
+                <button type="button" class="btn btn-warning btn-block oblong-button" id="speak" onclick="window.speak()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Start Speaking</strong></button>
+                <button type="button" class="btn btn-warning btn-block oblong-button" id="stopSpeaking" onclick="window.stopSpeaking()" style="margin-top: 5px; margin-bottom: 5px;"><strong>Stop Speaking</strong></button>
+              </div>
+            </form>
+          </div>
+          <!-- Second Row -->
+          <div style="margin-bottom: 40px;">
+            <div class="d-flex flex-column" style="margin-top: 50px;">
+              <a href="user.html" class="btn btn-primary mr-2" id="user" style="width: 100%; background-color: #0E132B; color: white; border: none; margin-bottom: 5px;">
+                <i class="fas fa-user"></i> User
+              </a>
+              <a href="setting.html" class="btn btn-primary mr-2" style="width: 100%; background-color: #0E132B; color: white; border: none; margin-bottom: 5px;">
+                <i class="fas fa-cog"></i> Settings
+              </a>
+              <button type="button" class="btn btn-primary" id="logout" style="width: 100%; background-color: #0E132B; color: white; border: none;">
+                <i class="fas fa-sign-out-alt"></i> Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="configuration">
+          <h1>Customized Speech Service</h1>
+          <p>Welcome to the customized speech service with Azure Cognitive Services, ICE Server, and personalized avatar.</p>
+          <div class="card mt-5">
+            <div class="card-header">
+              <h5>Azure Speech Resources</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                  Region:
+                  <select id="region" class="form-control">
+                  <option value="">--Select a region--</option>
+                  <option value="eastasia">East Asia</option>
+                  <option value="southeastasia">Southeast Asia</option>
+                  <option value="centralus">Central US</option>
+                  <option value="eastus">East US</option>
+                  <option value="eastus2">East US 2</option>
+                  <option value="northcentralus">North Central US</option>
+                  <option value="southcentralus">South Central US</option>
+                  <option value="westcentralus">West Central US</option>
+                  <option value="westus">West US</option>
+                  <option selected value="westus2">West US 2</option>
+                  <option value="japaneast">Japan East</option>
+                  <option value="japanwest">Japan West</option>
+                  <option value="koreacentral">Korea Central</option>
+                  <option value="koreasouth">Korea South</option>
+                  <option value="australiaeast">Australia East</option>
+                  <option value="australiasoutheast">Australia Southeast</option>
+                  <option value="southindia">South India</option>
+                  <option value="centralindia">Central India</option>
+                  <option value="westindia">West India</option>
+                  <option value="canadacentral">Canada Central</option>
+                  <option value="canadaeast">Canada East</option>
+                  <option value="uksouth">UK South</option>
+                  <option value="ukwest">UK West</option>
+                  <option value="westeurope">West Europe</option>
+                  </select>
+              </li>
+              <li class="list-group-item">
+                Subscription Key:
+                <input type="password" id="subscriptionKey" class="form-control">
+              </li>
+            </ul>
+          </div>
+          <div class="card mt-5">
+            <div class="card-header">
+              <h5>ICE Server</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                URL:
+                <input type="text" id="iceServerUrl" value="turn:standard.relay.metered.ca:80" class="form-control">
+              </li>
+              <li class="list-group-item">
+                Username:
+                <input type="text" id="iceServerUsername" value="4225aec50ff3bf1c37a6fbff" class="form-control">
+              </li>
+              <li class="list-group-item">
+                Credential:
+                <input type="password" id="iceServerCredential" value="kCjKoleFdNNvcU/b" class="form-control">
+              </li>
+            </ul>
+          </div>
+          <div class="card mt-5">
+            <div class="card-header">
+              <h5>TTS Configuration</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">
+                TTS Voice:
+                <input type="text" id="ttsVoice" value="en-US-JennyMultilingualV2Neural" class="form-control">
+              </li>
+              <li class="list-group-item">
+                Custom Voice Deploy ID (Endpoint ID):
+                <input type="text" id="customVoiceEndpointId" class="form-control">
+              </li>
+            </ul>
+          </div>
+          <div class="card mt-5">
+              <div class="card-header">
+                <h5>Avatar Configuration</h5>
+              </div>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  Avatar Character:
+                  <select id="talkingAvatarCharacter" class="form-control">
+                    <option value="">--Select a character--</option>
+                    <option selected value="lisa">Lisa</option>
+                    <option value="lizzo">Lizzo</option>
+                  </select>
+                </li>
+                <li class="list-group-item">
+                  Avatar Style:
+                  <select id="talkingAvatarStyle" class="form-control">
+                    <option value="">--Select style--</option>
+                    <option selected value="casual-sitting">Casual Sitting</option>
+                    <option value="graceful-sitting">Graceful Standing</option>
+                  </select>
+                </li>
+                <li class="list-group-item">
+                  Background Color:
+                  <select id="backgroundColor" class="form-control">
+                    <option value="">--Select Background-</option>
+                    <option selected value="#FFFFFFFF">Light</option>
+                    <option value="#000000">Dark</option>
+                  </select>
+                </li>
+                <li class="list-group-item">
+                  Custom Avatar:
+                  <div class="form-check">
+                    <input type="checkbox" id="customizedAvatar" class="form-check-input">
+                    <label for="customizedAvatar" class="form-check-label">Enable custom avatar</label>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  Transparent Background:
+                  <div class="form-check">
+                    <input type="checkbox" id="transparentBackground" class="form-check-input" onchange="window.updataTransparentBackground()">
+                    <label for="transparentBackground" class="form-check-label">Enable transparent background</label>
+                  </div>
+                </li>
+                <li class="list-group-item">
+                  Video Crop:
+                  <div class="form-check">
+                    <input type="checkbox" id="videoCrop" class="form-check-input" >
+                    <label for="videoCrop" class="form-check-label">Enable video crop</label>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="d-flex justify-content-end" style="width: 100%; margin-top: 20px;">
+              <button id="cancelBtn" onclick="window.cancelBtn()" style="min-width: 100px; height: 35px; padding: 0 10px; background-color: #0E132B; color: white; border-radius: 8px;"><strong>Cancel</strong></button>
+              <button id="saveBtn" onclick="window.saveBtn()" style="min-width: 100px; height: 35px; margin-left: 15px; padding: 0 10px; background-color: #0E132B; color: white; border-radius: 8px;"><strong>Save</strong></button>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!--footer-->
+<footer class="footer fixed-bottom"> <!-- Add fixed-bottom class to make the footer fixed at the bottom -->
+  <div class="container">
+    <div class="row">
+      <div class="col text-center">
+        <span class="navbar-text text-white" style="font-size: 80%">© 2024 Imagine AI Sdn. Bhd. All rights reserved.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- FontAwesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<!-- Custom Script -->
+<script>
+  $(document).ready(function () {
+      $(".navbar-toggler").on("click", function () {
+          $("#sidebar").toggleClass("show");
+          $("body").toggleClass("sidebar-opened"); // Toggle class on body content
+      });
+  });
+
+  function saveBtn() {
+    // Get all input elements
+    var inputs = document.querySelectorAll('input[type="text"], input[type="password"], select');
+    var selects = document.querySelectorAll('select');
+
+    var isValid = true;
+
+    // Loop through each input element
+    inputs.forEach(function(input) {
+      // Check if the input value is empty
+      if (input.id != "customVoiceEndpointId") {
+        if (!input.value.trim()) {
+        // If empty, set isValid to false and add a class to highlight the empty field
+        isValid = false;
+        input.classList.add('is-invalid');
+        } else {
+          // If not empty, remove the invalid class
+          input.classList.remove('is-invalid');
+        } 
+      }
+    });
+
+    // If any field is empty, show a warning
+    if (!isValid) {
+      alert('Please fill out all fields.');
+      return;
+    }
+
+    // If all fields are filled, save settings to localStorage
+    var settings = {};
+    inputs.forEach(function(input) {
+      settings[input.id] = input.value;
+    });
+    selects.forEach(function(select) {
+        settings[select.id] = select.value;
+    });
+    localStorage.setItem('settings', JSON.stringify(settings));
+
+    alert('Settings saved successfully.');
+  }
+  function cancelBtn() {
+    // Get all input elements and select elements
+    var inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+    var selects = document.querySelectorAll('select');
+
+    // Reset input field values to blank
+    inputs.forEach(function(input) {
+      input.value = '';
+    });
+
+    // Reset select element values to default
+    selects.forEach(function(select) {
+      select.value = '';
+    });
+  }
+</script>
+</body>
+</html>
