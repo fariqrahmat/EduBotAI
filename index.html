@@ -12,10 +12,9 @@
   <style>
     /* Base styles */
     html, body {
-      height: auto;
       padding : 0;
-      margin-top: 50px;
-      margin-bottom: 50px;
+      margin-top: 35px;
+      margin-bottom: 8px;
       transition: margin-left 0.3s ease-in-out;
     }
 
@@ -80,17 +79,6 @@
       height: 38px;
     }
 
-    .fixed-text-box {
-      position: absolute;
-      top: calc(100% + 440px); /* Adjust as needed */
-      left: 52%;
-      transform: translateX(-50%);
-      background-color: transparent; /* Background color */
-      padding: 60px;
-      min-width: 600px; /* Set width as needed */
-      border-radius: 5px;
-    }
-
     @media (min-width: 992px) {
         .sidebar.show ~ .col-md-8.offset-md-2 {
             margin-left: 250px; /* Adjust based on the width of the sidebar */
@@ -113,14 +101,38 @@
     .video-container {
       position: relative;
       width: 100%;
-      height: 360px; /* Adjust the height as needed */
+      height: 420px; /* Adjust the height as needed */
       background-color: white;
       text-align: center;
     }
 
     .chat-container {
-      overflow-y: auto;
-      height: calc(100vh - 420px); /* Adjust the height based on the video and form container heights */
+      overflow-y: hidden;
+      height: 420px;
+    }
+
+    .chat-container:hover {
+        overflow-y: scroll; /* Show scrollbar on hover */
+    }
+
+    /* Style scrollbar */
+    .chat-container::-webkit-scrollbar {
+        width: 10px; /* Width of the scrollbar */
+    }
+
+    /* Track */
+    .chat-container::-webkit-scrollbar-track {
+        background: transparent; /* Color of the track */
+    }
+
+    /* Handle */
+    .chat-container::-webkit-scrollbar-thumb {
+        background: #888; /* Color of the scrollbar handle */
+    }
+
+    /* Handle on hover */
+    .chat-container::-webkit-scrollbar-thumb:hover {
+        background: #555; /* Color of the scrollbar handle on hover */
     }
 
     .history-item {
@@ -298,10 +310,6 @@
           </li>
         </ul>
       </div>
-      <div class="d-flex justify-content-end" style="width: 100%; margin-top: 20px;">
-        <button id="cancelBtn" onclick="window.cancelBtn()" style="min-width: 100px; height: 35px; padding: 0 10px; background-color: #0E132B; color: white; border-radius: 8px;"><strong>Cancel</strong></button>
-        <button id="saveBtn" onclick="window.saveBtn()" style="min-width: 100px; height: 35px; margin-left: 15px; padding: 0 10px; background-color: #0E132B; color: white; border-radius: 8px;"><strong>Save</strong></button>
-      </div>
   </div>
 <!-- header-->
 <nav class="navbar navbar-expand-sm navbar-dark fixed-top navbar-custom">
@@ -391,32 +399,39 @@
       </div>
       <!--Content-->
       <div class="container align-items center">
-        <div class="row">
-          <div class="col">
-            <header style="text-align: center;">Hello, welcome to our class. Ask me Anything!</header>
-            <h5 id="videoLabel" style="text-align: center;"><small><strong>Avatar Video</strong></small></h5>
-            <div id="videoContainer" class="video-container" style="position: relative; width: 960px;">
-              <div id="overlayArea" style="position: absolute;" hidden="hidden">
-                <!-- Add your text or image controls here -->
-                <p id="overlayText" style="font-size: large;">Live Video</p>
-                <!-- <img id="overlayImage" src="your-image-source.png" alt="Overlay Image"> -->
+        <header style="text-align: center; margin-bottom: 30px;"><strong>Hello, welcome to our class. Ask me Anything!</strong></header>
+        <div class="container">
+          <div class="row">
+              <div class="col-md-6" style="border: 2px solid #ccc; border-radius: 5px;">
+                  <div class="container chat-container" style="display: flex; flex-direction: column-reverse; overflow-anchor: none; scroll-behavior: smooth;">
+                      <div id="chat-history">
+                          <!-- Chat history content goes here -->
+                      </div>
+                  </div>
               </div>
-              <div id="remoteVideo"></div>
-              <canvas id="canvas" width="1920" height="1080" style="background-color: transparent;" hidden="hidden"></canvas>
-              <canvas id="tmpCanvas" width="1920" height="1080" hidden="hidden"></canvas>
-            </div>
+              <div class="col-md-6">
+                  <div class="container" style="border: 2px solid #ccc; border-radius: 5px;">
+                      <h5 id="videoLabel" style="text-align: center;"><small><strong>Avatar Video</strong></small></h5>
+                      <div id="videoContainer" class="video-container" style="position: relative; width: 100%;">
+                          <div id="overlayArea" style="position: absolute;" hidden="hidden">
+                              <!-- Add your text or image controls here -->
+                              <p id="overlayText" style="font-size: large;">Live Video</p>
+                              <!-- <img id="overlayImage" src="your-image-source.png" alt="Overlay Image"> -->
+                          </div>
+                          <div id="remoteVideo">
+                              <!-- Video content goes here -->
+                          </div>
+                          <canvas id="canvas" width="1920" height="1080" style="background-color: transparent;" hidden="hidden"></canvas>
+                          <canvas id="tmpCanvas" width="1920" height="1080" hidden="hidden"></canvas>
+                      </div>
+                  </div>
+              </div>
           </div>
-        </div>
+      </div>
+      
         <div class="row">
           <div class="col">
-            <div class="container chat-container">
-              <div id="chat-history"></div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <div class="form-container">
+            <div class="form-container" style="margin-top: 30px;">
               <form id="form" class="row align-items-center justify-content-center" style="display: flex;">
                 <textarea hidden id="spokenText" style="height:40px">Hello world!</textarea><br/>
                 <div class="col-8"> <!-- Adjust the width as needed -->

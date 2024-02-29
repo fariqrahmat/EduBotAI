@@ -36,8 +36,8 @@ function setupWebRTC(iceServerUrl, iceServerUsername, iceServerCredential) {
         mediaPlayer.id = event.track.kind
         mediaPlayer.srcObject = event.streams[0]
         mediaPlayer.autoplay = true
-        mediaPlayer.style.width = '1000px'
-        mediaPlayer.style.height = '360px'
+        mediaPlayer.style.width = '450px'
+        mediaPlayer.style.height = '400px'
         document.getElementById('remoteVideo').appendChild(mediaPlayer)
         document.getElementById('videoLabel').hidden = true
         document.getElementById('overlayArea').hidden = false
@@ -58,7 +58,9 @@ function setupWebRTC(iceServerUrl, iceServerUsername, iceServerCredential) {
                 if (document.getElementById('transparentBackground').checked) {
                     window.requestAnimationFrame(makeBackgroundTransparent)
                 } else {
-                    remoteVideoDiv.style.width = mediaPlayer.videoWidth / 2 + 'px'
+                    //remoteVideoDiv.style.width = mediaPlayer.videoWidth / 2 + 'px'
+                    remoteVideoDiv.style.width = '300px'
+                    remoteVideoDiv.style.height = '300px'
                 }
             })
         }
@@ -68,6 +70,8 @@ function setupWebRTC(iceServerUrl, iceServerUsername, iceServerCredential) {
             // Refer to https://developer.mozilla.org/en-US/docs/Web/Media/Autoplay_guide
             mediaPlayer.muted = true
         }
+        
+        
     }
 
     // Make necessary update to the web page when the connection state changes
